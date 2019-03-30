@@ -1,40 +1,43 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 using namespace sf;
-//Getting the AABB to work(Axis Aligned Bounding Box)
-//TODO: Getting the Bounding Circle implemented.
+//Getting the Bounding Circle implemented.
 //TODO: Implementing the SAT (Separating Axis Theorem)
 
+//The collisions detection methods
 bool CheckAABBDetection(const RectangleShape& BoxA, const RectangleShape& BoxB);
+bool CheckBoundingCircleDetection(const CircleShape& circleA, const CircleShape& circleB);
+
+//A helper function to get the vector's magnitude
+float GetMagnitude(const Vector2f& vector);
 
 int main()
 {
 	//Created a 500 x 500 window
 	const int screenWidth = 500;
 	const int screenHeight = 500;
-	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "AABB TEST");
+	RenderWindow window(VideoMode(screenWidth, screenHeight), "Bounding Circle Test");
 
 	//My Block that I would like to control (later)
-	sf::RectangleShape myBlock(Vector2f(30, 30));
-	myBlock.setFillColor(sf::Color::Magenta);
+	CircleShape myBlock(10.0f);
+	myBlock.setFillColor(Color::Magenta);
 	myBlock.setOrigin(myBlock.getLocalBounds().width / 2, myBlock.getLocalBounds().height / 2);
 	myBlock.setPosition(screenWidth / 2, screenHeight / 2);
-	//myBlock.rotate(45.0f);
 
 	//The block we should bump into
-	RectangleShape floor(Vector2f(100, 20));
+	CircleShape floor(50.0f);
 	floor.setFillColor(Color::Green);
 	floor.setOrigin(floor.getLocalBounds().width / 2, floor.getLocalBounds().height / 2);
-	floor.setPosition(screenWidth / 2, (screenHeight / 2) + 20);
+	floor.setPosition(screenWidth / 2, (screenHeight / 2) + 100);
 
 	//Game Loop
 	while (window.isOpen())
 	{
 		//Window events code only put in this loop
-		sf::Event event;
+		Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed)
+			if (event.type == Event::Closed)
 				window.close();
 		}
 
@@ -42,25 +45,25 @@ int main()
 #pragma region Input_Code
 		if (Keyboard::isKeyPressed(Keyboard::A))
 		{
-			myBlock.move(-1, 0);
+			myBlock.move(-0.1f, 0);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::S))
 		{
-			myBlock.move(0, 1);
+			myBlock.move(0, 0.1f);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::D))
 		{
-			myBlock.move(1, 0);
+			myBlock.move(0.1f, 0);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::W))
 		{
-			myBlock.move(0, -1);
+			myBlock.move(0, -0.1f);
 		}
 #pragma endregion
 
 		//If they collide, turn blue
 		//otherwise, turn back to their original color
-		if (CheckAABBDetection(myBlock, floor))
+		if (CheckBoundingCircleDetection(myBlock, floor))
 		{
 			myBlock.setFillColor(Color::Blue);
 			floor.setFillColor(Color::Blue);
@@ -110,4 +113,20 @@ bool CheckAABBDetection(const RectangleShape& BoxA, const RectangleShape& BoxB)
 	}
 
 	return (yOverlap > 0.0f) ? true : false;
+}
+
+bool CheckBoundingCircleDetection(const CircleShape& circleA, const CircleShape& circleB)
+{
+	//Get the distance & its magnitude
+	float distance = GetMagnitude(circleB.getPosition() - circleA.getPosition());
+
+	//Two circles collide if their combined radius is less than 
+	//the distance between their centers
+	return ((circleA.getRadius() + circleB.getRadius()) >= distance) ? true : false;
+}
+
+//TODO: Move this and any future Vector helper functions to a header file
+float GetMagnitude(const Vector2f& vector)
+{
+	return std::sqrtf(vector.x * vector.x + vector.y * vector.y);
 }
