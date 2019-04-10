@@ -1,7 +1,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 using namespace sf;
-//Getting the Bounding Circle implemented.
+//Changed to using the AABB (Axis Aligned Bounding Box) method. 
 //TODO: Implementing the SAT (Separating Axis Theorem)
 
 //The collisions detection methods
@@ -16,16 +16,16 @@ int main()
 	//Created a 500 x 500 window
 	const int screenWidth = 500;
 	const int screenHeight = 500;
-	RenderWindow window(VideoMode(screenWidth, screenHeight), "Bounding Circle Test");
+	RenderWindow window(VideoMode(screenWidth, screenHeight), "AABB Test");
 
-	//My Block that I would like to control (later)
-	CircleShape myBlock(10.0f);
+	//My Block that I would like to control
+	RectangleShape myBlock(Vector2f(30.0f, 30.0f));
 	myBlock.setFillColor(Color::Magenta);
 	myBlock.setOrigin(myBlock.getLocalBounds().width / 2, myBlock.getLocalBounds().height / 2);
 	myBlock.setPosition(screenWidth / 2, screenHeight / 2);
 
 	//The block we should bump into
-	CircleShape floor(50.0f);
+	RectangleShape floor(Vector2f(100.0f, 20.0f));
 	floor.setFillColor(Color::Green);
 	floor.setOrigin(floor.getLocalBounds().width / 2, floor.getLocalBounds().height / 2);
 	floor.setPosition(screenWidth / 2, (screenHeight / 2) + 100);
@@ -45,25 +45,25 @@ int main()
 #pragma region Input_Code
 		if (Keyboard::isKeyPressed(Keyboard::A))
 		{
-			myBlock.move(-0.1f, 0);
+			myBlock.move(-1.0f, 0);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::S))
 		{
-			myBlock.move(0, 0.1f);
+			myBlock.move(0, 1.0f);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::D))
 		{
-			myBlock.move(0.1f, 0);
+			myBlock.move(1, 0);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::W))
 		{
-			myBlock.move(0, -0.1f);
+			myBlock.move(0, -1.0f);
 		}
 #pragma endregion
 
 		//If they collide, turn blue
 		//otherwise, turn back to their original color
-		if (CheckBoundingCircleDetection(myBlock, floor))
+		if (CheckAABBDetection(myBlock, floor))
 		{
 			myBlock.setFillColor(Color::Blue);
 			floor.setFillColor(Color::Blue);
