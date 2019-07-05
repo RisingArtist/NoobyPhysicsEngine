@@ -1,10 +1,12 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 using namespace sf;
-//Changed to using the AABB (Axis Aligned Bounding Box) method. 
-//TODO: Implementing the SAT (Separating Axis Theorem)
+#include "VectorOperations.h"
+#include "SeparatingAxisTheorem.h"
 
-//The collisions detection methods
+//Implementing the SAT (Separating Axis Theorem)
+
+//Basic Bounding Shape Collision Detection Methods
 bool CheckAABBDetection(const RectangleShape& BoxA, const RectangleShape& BoxB);
 bool CheckBoundingCircleDetection(const CircleShape& circleA, const CircleShape& circleB);
 
@@ -30,6 +32,8 @@ int main()
 	floor.setOrigin(floor.getLocalBounds().width / 2, floor.getLocalBounds().height / 2);
 	floor.setPosition(screenWidth / 2, (screenHeight / 2) + 100);
 
+	CheckSATDetection(myBlock, floor);
+
 	//Game Loop
 	while (window.isOpen())
 	{
@@ -45,25 +49,32 @@ int main()
 #pragma region Input_Code
 		if (Keyboard::isKeyPressed(Keyboard::A))
 		{
-			myBlock.move(-1.0f, 0);
+			myBlock.move(-0.1f, 0);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::S))
 		{
-			myBlock.move(0, 1.0f);
+			myBlock.move(0, 0.1f);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::D))
 		{
-			myBlock.move(1, 0);
+			myBlock.move(0.1f, 0);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::W))
 		{
-			myBlock.move(0, -1.0f);
+			myBlock.move(0, -0.1f);
+		}
+		if (Keyboard::isKeyPressed(Keyboard::E))
+		{
+			myBlock.rotate(2.0f);
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Q))
+		{
+			myBlock.rotate(-2.0f);
 		}
 #pragma endregion
-
 		//If they collide, turn blue
 		//otherwise, turn back to their original color
-		if (CheckAABBDetection(myBlock, floor))
+		if (CheckSATDetection(myBlock, floor))
 		{
 			myBlock.setFillColor(Color::Blue);
 			floor.setFillColor(Color::Blue);
@@ -83,6 +94,7 @@ int main()
 	window.close();
 	return 0;
 }
+
 
 bool CheckAABBDetection(const RectangleShape& BoxA, const RectangleShape& BoxB)
 {
@@ -123,10 +135,4 @@ bool CheckBoundingCircleDetection(const CircleShape& circleA, const CircleShape&
 	//Two circles collide if their combined radius is less than 
 	//the distance between their centers
 	return ((circleA.getRadius() + circleB.getRadius()) >= distance) ? true : false;
-}
-
-//TODO: Move this and any future Vector helper functions to a header file
-float GetMagnitude(const Vector2f& vector)
-{
-	return std::sqrtf(vector.x * vector.x + vector.y * vector.y);
 }
